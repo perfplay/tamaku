@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tamaku"
+version = "0.1.0"
+description = ""
+authors = ["Zak Fein <zak@zerg.su>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.scripts]
+tamaku = "tamaku.main:main"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
