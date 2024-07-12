@@ -10,6 +10,11 @@ class Logger:
             date_format='%Y-%m-%d %H:%M:%S'
     ):
         self.logger = self.setup_logging(log_level, log_format, date_format)
+        self._logger_name = __name__
+
+    @property
+    def logger_name(self):
+        return self._logger_name
 
     @staticmethod
     def setup_logging(log_level, log_format, date_format):

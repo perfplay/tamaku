@@ -3,6 +3,7 @@ from tamaku.utils.Utils import is_semantic_version
 
 
 class TestSemanticVersion(unittest.TestCase):
+
     def test_valid_versions(self):
         valid_versions = [
             "0.1",
