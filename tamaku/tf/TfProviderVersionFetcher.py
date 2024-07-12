@@ -1,8 +1,6 @@
 import requests
-from packaging import version
 from tamaku.utils.Logger import Logger
 from tamaku.BaseVersionFetcher import BaseVersionFetcher
-from tamaku.utils.Utils import is_semantic_version
 
 logger = Logger()
 

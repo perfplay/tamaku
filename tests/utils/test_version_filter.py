@@ -1,7 +1,5 @@
-import unittest
 from tamaku.utils.VersionFilter import VersionFilter
 import unittest
-from packaging import version
 from tamaku.utils.Logger import Logger
 
 logger = Logger()
@@ -48,13 +46,14 @@ class TestVersionFilter(unittest.TestCase):
         self.assertEqual(filtered_versions, expected_versions)
 
     def test_include_with_warning(self):
-        versions = ["1.0.0", "1.1.0"]
-        include = ["1.2.0", "1.0.0"]
-        version_filter = VersionFilter(versions, include=include)
+        versions = ["1.0.0", "1.1.0", "1.2.0", "1.3.0"]
+        include = ["1.5.0", "1.0.0"]
+        min_version = "1.2.0"
+        version_filter = VersionFilter(versions, include=include, min_version=min_version)
         with self.assertLogs(logger.logger_name, level='WARNING') as log:
             filtered_versions = version_filter.filter_versions()
-            self.assertIn(f"WARNING:{logger.logger_name}:Included version not found in original list: 1.2.0", log.output)
-        expected_versions = ["1.0.0", "1.1.0"]
+            self.assertIn(f"WARNING:{logger.logger_name}:Included version not found in original list: 1.5.0", log.output)
+        expected_versions = ["1.0.0", "1.2.0", "1.3.0"]
 
         self.assertEqual(filtered_versions, expected_versions)
 
