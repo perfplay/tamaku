@@ -13,6 +13,7 @@ tamaku = "tamaku.main:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
+requests = "^2.32.3"
 
 [build-system]
 requires = ["poetry-core"]

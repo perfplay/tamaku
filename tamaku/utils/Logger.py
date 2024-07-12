@@ -25,7 +25,7 @@ class Logger:
         stdout_handler.setFormatter(formatter)
         stderr_handler.setFormatter(formatter)
 
-        logger = logging.getLogger('Logger')
+        logger = logging.getLogger('tamaku.utils.Logger')  # Updated logger name
         logger.setLevel(log_level)
 
         logger.handlers.clear()
