@@ -1,4 +1,9 @@
 {
+  "registry": "registry.terraform.io",
+  "platforms": [
+    "linux_amd64",
+    "darwin_arm64"
+  ],
   "providers": [
     {
       "namespace": "hashicorp",

@@ -18,6 +18,11 @@ class TfProviderConfigLoader(BaseConfigLoader):
         schema = {
             "type": "object",
             "properties": {
+                "registry": {"type": "string"},
+                "platforms": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
                 "providers": {
                     "type": "array",
                     "items": {
