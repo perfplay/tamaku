@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import patch, mock_open
-import jsonschema
 import json
 
 from tamaku.BaseConfigLoader import BaseConfigLoader
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
+from tamaku.DataClasses import Config, Provider
 
 
 class TestBaseConfigLoader(unittest.TestCase):
@@ -24,6 +24,8 @@ class TestBaseConfigLoader(unittest.TestCase):
 class TestTfProviderConfigLoader(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({
+        "registry": "registry.terraform.io",
+        "platforms": ["linux_amd64", "darwin_arm64"],
         "providers": [
             {
                 "namespace": "hashicorp",
@@ -43,12 +45,14 @@ class TestTfProviderConfigLoader(unittest.TestCase):
         loader = TfProviderConfigLoader()
         config = loader.load_config("dummy_path")
         self.assertIsNotNone(config)
-        self.assertIn("providers", config)
-        self.assertEqual(len(config["providers"]), 2)
-        self.assertIsNone(config["providers"][0]["minimal_version"])
-        self.assertEqual(config["providers"][0]["versions"], [])
+        self.assertIsInstance(config, Config)
+        self.assertEqual(len(config.providers), 2)
+        self.assertIsNone(config.providers[0].minimal_version)
+        self.assertEqual(config.providers[0].versions, [])
 
     @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({
+        "registry": "registry.terraform.io",
+        "platforms": ["linux_amd64", "darwin_arm64"],
         "providers": [
             {
                 "namespace": "hashicorp",
@@ -68,8 +72,8 @@ class TestTfProviderConfigLoader(unittest.TestCase):
         loader = TfProviderConfigLoader()
         config = loader.load_config("dummy_path")
         self.assertIsNotNone(config)
-        self.assertIn("providers", config)
-        self.assertEqual(len(config["providers"]), 2)
+        self.assertIsInstance(config, Config)
+        self.assertEqual(len(config.providers), 2)
 
     @patch("builtins.open", new_callable=mock_open, read_data='{"invalid_key": "value"}')
     def test_load_and_validate_config_failure(self, mock_file):

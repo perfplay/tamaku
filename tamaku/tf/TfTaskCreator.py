@@ -4,6 +4,7 @@ from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.tf.TfProviderVersionFetcher import TfProviderVersionFetcher
 from tamaku.utils.Logger import Logger
 from tamaku.utils.VersionFilter import VersionFilter
+from tamaku.DataClasses import Config, Provider
 
 logger = Logger()
 
@@ -11,8 +12,9 @@ logger = Logger()
 class TfTaskCreator(BaseTaskCreator):
     def __init__(self, config_path: str, registry_url: str):
         super().__init__(config_path, registry_url)
+        self.config: Config = self.load_config()
 
-    def load_config(self) -> Dict[str, Any]:
+    def load_config(self) -> Config:
         loader = TfProviderConfigLoader()
         config = loader.load_config(self.config_path)
         if not config:
@@ -22,17 +24,17 @@ class TfTaskCreator(BaseTaskCreator):
     def create_tasks(self) -> Dict[str, Any]:
         tasks = {"tasks": []}
 
-        for provider_data in self.config.get("providers", []):
+        for provider_data in self.config.providers:
             versions_fetcher = TfProviderVersionFetcher(
-                registry_url=self.registry_url,
-                namespace=provider_data.get("namespace"),
-                name=provider_data.get("name")
+                registry_url=self.config.registry,
+                namespace=provider_data.namespace,
+                name=provider_data.name
             )
 
             versions = versions_fetcher.fetch_versions()
 
-            include_versions = provider_data.get("versions", [])
-            min_version = provider_data.get("minimal_version")
+            include_versions = provider_data.versions
+            min_version = provider_data.minimal_version
 
             version_filter = VersionFilter(versions=versions, include=include_versions, min_version=min_version)
             filtered_versions = version_filter.filter_versions()
@@ -42,13 +44,11 @@ class TfTaskCreator(BaseTaskCreator):
         return tasks
 
     @staticmethod
-    def generate_task_data(provider_data: Dict[str, Any], versions: List[str]) -> Dict[str, Any]:
-        namespace = provider_data.get("namespace")
-        name = provider_data.get("name")
+    def generate_task_data(provider_data: Provider, versions: List[str]) -> Dict[str, Any]:
         task_data = {
-            "namespace": namespace,
-            "name": name,
+            "namespace": provider_data.namespace,
+            "name": provider_data.name,
             "versions": versions
         }
-        logger.info(f"Task generated for {namespace}/{name}: {versions}")
+        logger.info(f"Task generated for {provider_data.namespace}/{provider_data.name}: {versions}")
         return task_data

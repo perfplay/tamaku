@@ -1,6 +1,8 @@
 import json
 import jsonschema
 from typing import Dict, Any
+from tamaku.DataClasses import Config, Provider
+from typing import List, Optional
 from tamaku.BaseConfigLoader import BaseConfigLoader
 from tamaku.utils.Logger import Logger
 
@@ -8,10 +10,10 @@ logger = Logger()
 
 
 class TfProviderConfigLoader(BaseConfigLoader):
-    def load_config(self, config_file: str) -> Dict[str, Any]:
-        config = self.load_config_file(config_file)
-        if config and self.validate_config(config):
-            return config
+    def load_config(self, config_file: str) -> Optional[Config]:
+        config_dict = self.load_config_file(config_file)
+        if config_dict and self.validate_config(config_dict):
+            return self.convert_to_dataclass(config_dict)
         return None
 
     def validate_config(self, config: Dict[str, Any]) -> bool:
@@ -40,7 +42,7 @@ class TfProviderConfigLoader(BaseConfigLoader):
                     }
                 }
             },
-            "required": ["providers"]
+            "required": ["registry", "providers"]
         }
         try:
             jsonschema.validate(instance=config, schema=schema)
@@ -49,3 +51,20 @@ class TfProviderConfigLoader(BaseConfigLoader):
         except jsonschema.exceptions.ValidationError as e:
             logger.error(f"Configuration validation error: {e}")
             return False
+
+    @staticmethod
+    def convert_to_dataclass(config: Dict[str, Any]) -> Config:
+        providers = [
+            Provider(
+                namespace=p["namespace"],
+                name=p["name"],
+                minimal_version=p.get("minimal_version"),
+                versions=p.get("versions", [])
+            )
+            for p in config.get("providers", [])
+        ]
+        return Config(
+            registry=config["registry"],
+            platforms=config.get("platforms", []),
+            providers=providers
+        )

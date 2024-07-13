@@ -10,7 +10,7 @@ class TfProviderVersionFetcher(BaseVersionFetcher):
         super().__init__(registry_url, namespace, name)
 
     def fetch_versions(self):
-        registry_url_with_path = f"{self.registry_url}/v1/providers/{self.namespace}/{self.name}/versions"
+        registry_url_with_path = f"https://{self.registry_url}/v1/providers/{self.namespace}/{self.name}/versions"
         try:
             response = requests.get(registry_url_with_path)
             response.raise_for_status()
