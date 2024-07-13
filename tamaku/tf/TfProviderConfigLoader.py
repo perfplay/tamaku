@@ -1,8 +1,7 @@
 import json
 import jsonschema
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from tamaku.DataClasses import Config, Provider
-from typing import List, Optional
 from tamaku.BaseConfigLoader import BaseConfigLoader
 from tamaku.utils.Logger import Logger
 
@@ -25,6 +24,7 @@ class TfProviderConfigLoader(BaseConfigLoader):
                     "type": "array",
                     "items": {"type": "string"}
                 },
+                "mirror_path": {"type": ["string", "null"]},
                 "providers": {
                     "type": "array",
                     "items": {
@@ -66,5 +66,6 @@ class TfProviderConfigLoader(BaseConfigLoader):
         return Config(
             registry=config["registry"],
             platforms=config.get("platforms", []),
+            mirror_path=config.get("mirror_path") or "mirror",
             providers=providers
         )

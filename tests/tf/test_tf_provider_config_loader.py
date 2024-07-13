@@ -26,6 +26,7 @@ class TestTfProviderConfigLoader(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({
         "registry": "registry.terraform.io",
         "platforms": ["linux_amd64", "darwin_arm64"],
+        "mirror_path": None,
         "providers": [
             {
                 "namespace": "hashicorp",
@@ -49,10 +50,12 @@ class TestTfProviderConfigLoader(unittest.TestCase):
         self.assertEqual(len(config.providers), 2)
         self.assertIsNone(config.providers[0].minimal_version)
         self.assertEqual(config.providers[0].versions, [])
+        self.assertEqual(config.mirror_path, "mirror")
 
     @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({
         "registry": "registry.terraform.io",
         "platforms": ["linux_amd64", "darwin_arm64"],
+        "mirror_path": "custom_mirror",
         "providers": [
             {
                 "namespace": "hashicorp",
@@ -74,6 +77,7 @@ class TestTfProviderConfigLoader(unittest.TestCase):
         self.assertIsNotNone(config)
         self.assertIsInstance(config, Config)
         self.assertEqual(len(config.providers), 2)
+        self.assertEqual(config.mirror_path, "custom_mirror")
 
     @patch("builtins.open", new_callable=mock_open, read_data='{"invalid_key": "value"}')
     def test_load_and_validate_config_failure(self, mock_file):
