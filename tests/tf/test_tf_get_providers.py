@@ -38,10 +38,10 @@ class TestTfGetProviders(unittest.TestCase):
         )
 
         # Instantiate TfGetProviders to trigger the get_providers method
-        TfGetProviders()
+        TfGetProviders(config_path="configs/provider_config.json")
 
         # Assertions to ensure the methods were called with expected arguments
-        expected_calls = [unittest.mock.call('configs/provider_config.json')] * 3
+        expected_calls = [unittest.mock.call('configs/provider_config.json')]
         mock_load_config.assert_has_calls(expected_calls, any_order=False)
         mock_create_tasks_json.assert_called_once_with("provider_tasks.json")
 

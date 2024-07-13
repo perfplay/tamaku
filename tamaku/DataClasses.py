@@ -11,6 +11,13 @@ class Provider:
 
 
 @dataclass
+class InstalledProvider:
+    namespace: str
+    name: str
+    versions: List[str] = field(default_factory=list)
+
+
+@dataclass
 class Config:
     registry: str
     platforms: List[str] = field(default_factory=list)

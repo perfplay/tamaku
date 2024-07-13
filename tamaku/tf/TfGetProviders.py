@@ -7,12 +7,11 @@ logger = Logger()
 
 
 class TfGetProviders:
-    def __init__(self):
-        self.get_providers()
+    def __init__(self, config_path: str):
+        self.get_providers(config_path)
 
     @staticmethod
-    def get_providers():
-        config_path = "configs/provider_config.json"
+    def get_providers(config_path: str = None):
         loader = TfProviderConfigLoader()
         config = loader.load_config(config_path)
 
