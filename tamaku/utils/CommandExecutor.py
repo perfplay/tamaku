@@ -10,6 +10,7 @@ class CommandExecutor:
         self.failed_updates = []
 
     def execute_command(self, command, timeout=300, **popen_kwargs):
+        result = None
         try:
             result = self.run_subprocess_popen(command, timeout=timeout, **popen_kwargs)
 
@@ -26,6 +27,7 @@ class CommandExecutor:
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
             self.failed_updates.append((command, str(e)))
+        return result
 
     def run_subprocess_popen(self, command, timeout=300, **popen_kwargs):
         default_popen_kwargs = {
