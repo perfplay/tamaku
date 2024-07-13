@@ -41,10 +41,10 @@ class BaseVersionFetcher(ABC):
                 current_versions.append(parsed_version)
                 current_versions_str.append(ver['version'])
             except version.InvalidVersion as e:
-                logger.error(f"Invalid version: {ver['version']} - {e}")
+                logger.warning(f"Invalid version: {ver['version']} - {e}")
                 continue
 
         self._current_versions = sorted(current_versions)
-        self._current_versions_str = sorted(current_versions_str)
+        self._current_versions_str = [str(v) for v in sorted(current_versions)]
 
         logger.info(f"Fetched versions for {self.namespace}/{self.name}: {current_versions_str}")

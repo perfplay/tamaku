@@ -39,7 +39,7 @@ class TestTfProviderVersionFetcher(unittest.TestCase):
         with self.assertLogs(logger.logger_name, level='WARNING') as log:
             fetcher.fetch_versions()
             self.assertIn(f"WARNING:{logger.logger_name}:Non-semantic version, filtered: 2.0.0-alpha", log.output)
-            self.assertIn(f"ERROR:{logger.logger_name}:Invalid version: invalid_version - Invalid version: 'invalid_version'", log.output)
+            self.assertIn(f"WARNING:{logger.logger_name}:Invalid version: invalid_version - Invalid version: 'invalid_version'", log.output)
 
     @patch('requests.get')
     def test_fetch_versions_request_exception(self, mock_get):
