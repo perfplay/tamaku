@@ -35,16 +35,17 @@ class TestTfTaskCreator(unittest.TestCase):
             ]
         )
 
+        # Убедитесь, что количество элементов соответствует числу вызовов
         mock_fetch_versions.side_effect = [
             ["5.11.0", "5.21.0", "5.35.0", "5.53.0", "5.54.0"],
             ["2.10.0", "2.11.0", "2.13.0"]
         ]
 
         task_creator = TfTaskCreator("path/to/config.json", "https://registry.terraform.io")
-        tasks = task_creator.create_tasks()
+        tasks = task_creator.tasks
 
         expected_tasks = {
-            "tasks": [
+            "providers": [
                 {
                     "namespace": "hashicorp",
                     "name": "aws",
@@ -99,7 +100,7 @@ class TestTfTaskCreator(unittest.TestCase):
                 data = json.load(file)
 
             expected_tasks = {
-                "tasks": [
+                "providers": [
                     {
                         "namespace": "hashicorp",
                         "name": "aws",

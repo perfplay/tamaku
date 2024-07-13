@@ -2,11 +2,10 @@ import os
 import json
 from typing import List, Dict, Optional
 from tamaku.utils.Logger import Logger
-from tamaku.DataClasses import InstalledProvider
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
-from tamaku.DataClasses import Config
+from tamaku.DataClasses import InstalledProvider, InstalledVersion
 
-logger = Logger()
+logger = Logger(log_level="DEBUG")
 
 
 class TfInstalledVersionsChecker:
@@ -24,15 +23,18 @@ class TfInstalledVersionsChecker:
 
         for namespace in os.listdir(registry_path):
             namespace_path = os.path.join(registry_path, namespace)
+            logger.debug(f"Processing namespace: {namespace}")
             if not os.path.isdir(namespace_path):
                 continue
 
             for provider_name in os.listdir(namespace_path):
                 provider_path = os.path.join(namespace_path, provider_name)
+                logger.debug(f"Processing provider: {namespace}/{provider_name}")
                 if not os.path.isdir(provider_path):
                     continue
 
                 versions = self.get_versions_from_index(provider_path)
+                logger.debug(f"Found versions for {namespace}/{provider_name}: {versions}")
                 provider = InstalledProvider(
                     namespace=namespace,
                     name=provider_name,
@@ -43,12 +45,28 @@ class TfInstalledVersionsChecker:
         return providers
 
     @staticmethod
-    def get_versions_from_index(provider_path: str) -> List[str]:
+    def get_versions_from_index(provider_path: str) -> List[InstalledVersion]:
         index_file_path = os.path.join(provider_path, "index.json")
         versions = []
+        installed_versions = []
+
         if os.path.exists(index_file_path):
             with open(index_file_path, 'r') as f:
                 index_data = json.load(f)
                 versions = list(index_data.get("versions", {}).keys())
-        return versions
+            logger.debug(f"Found versions in index: {versions}")
 
+        for version in versions:
+            version_file_path = os.path.join(provider_path, f"{version}.json")
+            if os.path.exists(version_file_path):
+                logger.debug(f"Found version file: {version_file_path}")
+                with open(version_file_path, 'r') as f:
+                    version_data = json.load(f)
+                    for platform, platform_data in version_data.get("archives", {}).items():
+                        logger.info(f"Version_data: {version} {platform}")
+                        installed_versions.append(InstalledVersion(version=version, platform=platform))
+                        logger.debug(f"Added version: {version} for platform: {platform}")
+            else:
+                logger.warning(f"Version file not found: {version_file_path}")
+
+        return installed_versions

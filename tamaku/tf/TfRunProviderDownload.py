@@ -11,6 +11,7 @@ class TfRunProviderDownload:
         self.failed_updates = []
 
     def run_download(self, namespace: str, name: str, version: str, platform: str, path: str):
+        logger.info(f"Starting download for {namespace}/{name} version {version} on {platform}")
         TfTemplateGenerator.generate_terraform_config(namespace, name, version, path)
         command = ["terraform", "providers", "mirror", f"-platform={platform}", "."]
 

@@ -1,12 +1,16 @@
 import unittest
 from unittest.mock import patch, MagicMock
+import requests
 
 from tamaku.utils.Logger import Logger
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.tf.TfTaskCreator import TfTaskCreator
 from tamaku.tf.TfRunProviderDownload import TfRunProviderDownload
 from tamaku.tf.TfGetProviders import TfGetProviders
+from tamaku.tf.TfProviderVersionFetcher import TfProviderVersionFetcher
 from tamaku.DataClasses import Config, Provider
+
+logger = Logger()
 
 
 class TestTfGetProviders(unittest.TestCase):
@@ -15,7 +19,8 @@ class TestTfGetProviders(unittest.TestCase):
     @patch.object(TfTaskCreator, 'create_tasks_json')
     @patch.object(TfRunProviderDownload, 'run_download')
     @patch.object(Logger, 'info')
-    def test_get_providers(self, mock_logger_info, mock_run_download, mock_create_tasks_json, mock_load_config):
+    @patch('requests.get')
+    def test_get_providers(self, mock_requests_get, mock_logger_info, mock_run_download, mock_create_tasks_json, mock_load_config):
         # Mocking the load_config to return a predefined config
         mock_load_config.return_value = Config(
             registry="registry.terraform.io",
@@ -37,15 +42,39 @@ class TestTfGetProviders(unittest.TestCase):
             ]
         )
 
-        # Instantiate TfGetProviders to trigger the get_providers method
-        TfGetProviders(config_path="configs/provider_config.json")
+        def mock_fetch_versions(url, *args, **kwargs):
+            if "aws" in url:
+                return MagicMock(status_code=200, json=lambda: {"versions": [{"version": "5.21.0"}, {"version": "5.35.0"}]})
+            elif "helm" in url:
+                return MagicMock(status_code=200, json=lambda: {"versions": [{"version": "2.11.0"}]})
+            return MagicMock(status_code=200, json=lambda: {"versions": []})
 
-        # Assertions to ensure the methods were called with expected arguments
-        expected_calls = [unittest.mock.call('configs/provider_config.json')]
+        mock_requests_get.side_effect = mock_fetch_versions
+
+        mock_create_tasks_json.return_value = None
+        mock_task_creator = MagicMock()
+        mock_task_creator.tasks = {
+            "providers": [
+                {
+                    "namespace": "hashicorp",
+                    "name": "aws",
+                    "versions": ["5.21.0", "5.35.0"]
+                },
+                {
+                    "namespace": "hashicorp",
+                    "name": "helm",
+                    "versions": ["2.11.0"]
+                }
+            ]
+        }
+
+        with patch('tamaku.tf.TfTaskCreator.TfTaskCreator', return_value=mock_task_creator):
+            TfGetProviders(config_path="configs/provider_config.json")
+
+        expected_calls = [unittest.mock.call("configs/provider_config.json")]
         mock_load_config.assert_has_calls(expected_calls, any_order=False)
         mock_create_tasks_json.assert_called_once_with("provider_tasks.json")
 
-        # Checking the calls for run_download
         expected_run_download_calls = [
             unittest.mock.call(namespace="hashicorp", name="aws", version="5.21.0", platform="linux_amd64",
                                path="mirror/providers"),

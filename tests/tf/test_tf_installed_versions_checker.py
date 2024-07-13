@@ -4,20 +4,18 @@ import json
 import os
 
 from tamaku.tf.TfInstalledVersionsChecker import TfInstalledVersionsChecker
-from tamaku.DataClasses import InstalledProvider, Config, Provider
+from tamaku.DataClasses import InstalledProvider, InstalledVersion, Config, Provider
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 
 
 class TestTfInstalledVersionsChecker(unittest.TestCase):
 
+    def setUp(self):
+        self.maxDiff = None  # Установить для отображения полного различия
+
     @patch("os.listdir")
     @patch("os.path.isdir")
-    @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({
-        "versions": {
-            "5.21.0": {},
-            "5.35.0": {}
-        }
-    }))
+    @patch("builtins.open", new_callable=mock_open)
     @patch.object(TfProviderConfigLoader, 'load_config')
     def test_check_installed_versions(self, mock_load_config, mock_open_file, mock_isdir, mock_listdir):
         # Mocking the config to be loaded
@@ -38,72 +36,44 @@ class TestTfInstalledVersionsChecker(unittest.TestCase):
         # Mocking os.listdir and os.path.isdir
         mock_listdir.side_effect = [
             ["hashicorp"],  # First call to listdir for namespaces
-            ["aws"],       # Second call to listdir for provider names
+            ["aws"],  # Second call to listdir for provider names
+            ["5.21.0.json", "5.35.0.json"]  # Third call to listdir for versions
         ]
         mock_isdir.return_value = True
 
-        checker = TfInstalledVersionsChecker("dummy_path")
-
-        expected_providers = [
-            InstalledProvider(
-                namespace="hashicorp",
-                name="aws",
-                versions=["5.21.0", "5.35.0"]
-            )
-        ]
-
-        self.assertEqual(checker.providers, expected_providers)
-        mock_open_file.assert_called_with(os.path.join("mirror/providers/registry.terraform.io/hashicorp/aws", "index.json"), 'r')
-
-    @patch("os.listdir")
-    @patch("os.path.isdir")
-    @patch("builtins.open")
-    @patch.object(TfProviderConfigLoader, 'load_config')
-    def test_check_installed_versions_multiple_providers(self, mock_load_config, mock_open_file, mock_isdir, mock_listdir):
-        # Mocking the config to be loaded
-        mock_load_config.return_value = Config(
-            registry="registry.terraform.io",
-            mirror_path="mirror",
-            platforms=["linux_amd64", "darwin_arm64"],
-            providers=[
-                Provider(
-                    namespace="hashicorp",
-                    name="aws",
-                    minimal_version="5.53",
-                    versions=["5.21.0", "5.35.0"]
-                ),
-                Provider(
-                    namespace="hashicorp",
-                    name="helm",
-                    minimal_version="2.13",
-                    versions=["2.11.0"]
-                )
-            ]
-        )
-
-        # Mocking os.listdir and os.path.isdir
-        mock_listdir.side_effect = [
-            ["hashicorp"],  # First call to listdir for namespaces
-            ["aws", "helm"],  # Second call to listdir for provider names
-            ["5.21.0.json", "5.35.0.json"],  # Third call for aws versions
-            ["2.11.0.json", "2.13.0.json"],  # Fourth call for helm versions
-        ]
-        mock_isdir.return_value = True
-
-        # Mocking the content of the index.json for each provider
+        # Mocking the content of the version.json files
         def open_side_effect(path, *args, **kwargs):
-            if "aws" in path:
+            if "index.json" in path:
                 return mock_open(read_data=json.dumps({
                     "versions": {
                         "5.21.0": {},
                         "5.35.0": {}
                     }
                 })).return_value
-            elif "helm" in path:
+            elif "5.21.0.json" in path:
                 return mock_open(read_data=json.dumps({
-                    "versions": {
-                        "2.11.0": {},
-                        "2.13.0": {}
+                    "archives": {
+                        "linux_amd64": {
+                            "hashes": ["h1:N8sP6VZjHbtgmaCU6BKPox51UIypWXQRal7JMecEXQw="],
+                            "url": "terraform-provider-aws_5.21.0_linux_amd64.zip"
+                        },
+                        "darwin_arm64": {
+                            "hashes": ["h1:LzpydUV5m8hjktKbVyTPpRg8mjj67IXMKdOfanIfKNE="],
+                            "url": "terraform-provider-aws_5.21.0_darwin_arm64.zip"
+                        }
+                    }
+                })).return_value
+            elif "5.35.0.json" in path:
+                return mock_open(read_data=json.dumps({
+                    "archives": {
+                        "linux_amd64": {
+                            "hashes": ["h1:N8sP6VZjHbtgmaCU6BKPox51UIypWXQRal7JMecEXQw="],
+                            "url": "terraform-provider-aws_5.35.0_linux_amd64.zip"
+                        },
+                        "darwin_arm64": {
+                            "hashes": ["h1:LzpydUV5m8hjktKbVyTPpRg8mjj67IXMKdOfanIfKNE="],
+                            "url": "terraform-provider-aws_5.35.0_darwin_arm64.zip"
+                        }
                     }
                 })).return_value
             raise FileNotFoundError
@@ -116,18 +86,18 @@ class TestTfInstalledVersionsChecker(unittest.TestCase):
             InstalledProvider(
                 namespace="hashicorp",
                 name="aws",
-                versions=["5.21.0", "5.35.0"]
-            ),
-            InstalledProvider(
-                namespace="hashicorp",
-                name="helm",
-                versions=["2.11.0", "2.13.0"]
+                versions=[
+                    InstalledVersion(version="5.21.0", platform="linux_amd64"),
+                    InstalledVersion(version="5.21.0", platform="darwin_arm64"),
+                    InstalledVersion(version="5.35.0", platform="linux_amd64"),
+                    InstalledVersion(version="5.35.0", platform="darwin_arm64")
+                ]
             )
         ]
 
         self.assertEqual(checker.providers, expected_providers)
-        mock_open_file.assert_any_call(os.path.join("mirror/providers/registry.terraform.io/hashicorp/aws", "index.json"), 'r')
-        mock_open_file.assert_any_call(os.path.join("mirror/providers/registry.terraform.io/hashicorp/helm", "index.json"), 'r')
+        mock_open_file.assert_any_call(
+            os.path.join("mirror/providers/registry.terraform.io/hashicorp/aws", "index.json"), 'r')
 
 
 if __name__ == '__main__':

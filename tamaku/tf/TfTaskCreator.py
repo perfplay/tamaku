@@ -12,21 +12,15 @@ logger = Logger()
 class TfTaskCreator(BaseTaskCreator):
     def __init__(self, config_path: str, registry_url: str):
         super().__init__(config_path, registry_url)
-        self.config: Config = self.load_config()
-
-    def load_config(self) -> Config:
-        loader = TfProviderConfigLoader()
-        config = loader.load_config(self.config_path)
-        if not config:
-            raise ValueError(f"Failed to load config from {self.config_path}")
-        return config
 
     def create_tasks(self) -> Dict[str, Any]:
-        tasks = {"tasks": []}
+        tasks = {"providers": []}
+        loader = TfProviderConfigLoader()
+        config = loader.load_config(self.config_path)
 
-        for provider_data in self.config.providers:
+        for provider_data in config.providers:
             versions_fetcher = TfProviderVersionFetcher(
-                registry_url=self.config.registry,
+                registry_url=config.registry,
                 namespace=provider_data.namespace,
                 name=provider_data.name
             )
@@ -40,7 +34,7 @@ class TfTaskCreator(BaseTaskCreator):
             filtered_versions = version_filter.filter_versions()
 
             task_data = self.generate_task_data(provider_data, filtered_versions)
-            tasks["tasks"].append(task_data)
+            tasks["providers"].append(task_data)
         return tasks
 
     @staticmethod
