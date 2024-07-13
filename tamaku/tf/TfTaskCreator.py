@@ -43,9 +43,12 @@ class TfTaskCreator(BaseTaskCreator):
 
     @staticmethod
     def generate_task_data(provider_data: Dict[str, Any], versions: List[str]) -> Dict[str, Any]:
+        namespace = provider_data.get("namespace")
+        name = provider_data.get("name")
         task_data = {
-            "namespace": provider_data.get("namespace"),
-            "name": provider_data.get("name"),
+            "namespace": namespace,
+            "name": name,
             "versions": versions
         }
+        logger.info(f"Task generated for {namespace}/{name}: {versions}")
         return task_data

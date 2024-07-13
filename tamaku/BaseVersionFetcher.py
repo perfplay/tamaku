@@ -47,4 +47,5 @@ class BaseVersionFetcher(ABC):
         self._current_versions = sorted(current_versions)
         self._current_versions_str = [str(v) for v in sorted(current_versions)]
 
-        logger.info(f"Fetched versions for {self.namespace}/{self.name}: {current_versions_str}")
+        logger.debug(f"Fetched versions for {self.namespace}/{self.name}: {current_versions_str}")
+        logger.info(f"Versions fetched for {self.namespace}/{self.name}")
