@@ -11,9 +11,7 @@ logger = Logger()
 
 class TfInstalledVersionsChecker:
     def __init__(self, config_path: str):
-        self.config_path = config_path
-        self.providers = []
-        self.check_installed_versions(config_path)
+        self.providers = self.check_installed_versions(config_path)
 
     def check_installed_versions(self, config_path):
         loader = TfProviderConfigLoader()
@@ -42,7 +40,7 @@ class TfInstalledVersionsChecker:
                 )
                 providers.append(provider)
 
-        self.providers = providers
+        return providers
 
     @staticmethod
     def get_versions_from_index(provider_path: str) -> List[str]:
@@ -53,3 +51,4 @@ class TfInstalledVersionsChecker:
                 index_data = json.load(f)
                 versions = list(index_data.get("versions", {}).keys())
         return versions
+
