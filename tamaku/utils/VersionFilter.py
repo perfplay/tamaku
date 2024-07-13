@@ -30,4 +30,3 @@ class VersionFilter:
 
         filtered_versions.sort()
         return [str(ver) for ver in filtered_versions]
-

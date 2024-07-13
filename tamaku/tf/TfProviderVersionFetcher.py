@@ -16,6 +16,7 @@ class TfProviderVersionFetcher(BaseVersionFetcher):
             response.raise_for_status()
             versions = response.json().get('versions', [])
             self.validate_versions(versions)
+            return self._current_versions_str
 
         except requests.RequestException as e:
             logger.error(f"Failed to fetch versions for {self.namespace}/{self.name}: {e}")

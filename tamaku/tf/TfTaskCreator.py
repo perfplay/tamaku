@@ -1,9 +1,9 @@
-from typing import Dict, Any
-
-from tamaku.BaseTaksCreator import BaseTaskCreator
+from typing import Dict, Any, List
+from tamaku.BaseTaskCreator import BaseTaskCreator
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.tf.TfProviderVersionFetcher import TfProviderVersionFetcher
 from tamaku.utils.Logger import Logger
+from tamaku.utils.VersionFilter import VersionFilter
 
 logger = Logger()
 
@@ -21,13 +21,31 @@ class TfTaskCreator(BaseTaskCreator):
 
     def create_tasks(self) -> Dict[str, Any]:
         tasks = {"tasks": []}
+
         for provider_data in self.config.get("providers", []):
-            provider_versions = TfProviderVersionFetcher(
+            versions_fetcher = TfProviderVersionFetcher(
                 registry_url=self.registry_url,
                 namespace=provider_data.get("namespace"),
                 name=provider_data.get("name")
             )
-            provider_versions.fetch_versions()
-            provider_data["fetched_versions"] = provider_versions.current_versions_str
-            tasks["tasks"].append(provider_data)
+
+            versions = versions_fetcher.fetch_versions()
+
+            include_versions = provider_data.get("versions", [])
+            min_version = provider_data.get("minimal_version")
+
+            version_filter = VersionFilter(versions=versions, include=include_versions, min_version=min_version)
+            filtered_versions = version_filter.filter_versions()
+
+            task_data = self.generate_task_data(provider_data, filtered_versions)
+            tasks["tasks"].append(task_data)
         return tasks
+
+    @staticmethod
+    def generate_task_data(provider_data: Dict[str, Any], versions: List[str]) -> Dict[str, Any]:
+        task_data = {
+            "namespace": provider_data.get("namespace"),
+            "name": provider_data.get("name"),
+            "versions": versions
+        }
+        return task_data
