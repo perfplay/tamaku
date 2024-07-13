@@ -2,7 +2,9 @@ import json
 import re
 import subprocess
 import threading
+from typing import Dict, Any
 
+from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.utils.Logger import Logger
 
 logger = Logger()
