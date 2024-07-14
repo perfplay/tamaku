@@ -3,7 +3,7 @@ import json
 from typing import List, Dict, Optional
 from tamaku.utils.Logger import Logger
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
-from tamaku.DataClasses import InstalledProvider, InstalledVersion
+from tamaku.DataClasses import InstalledProvider, VersionWithPlatform
 
 logger = Logger(log_level="DEBUG")
 
@@ -20,6 +20,10 @@ class TfInstalledVersionsChecker:
         providers = []
         registry_path = os.path.join(mirror_path, config.registry)
         logger.info(f"Checking installed versions in {registry_path}")
+
+        if not os.path.exists(registry_path):
+            logger.info("No installed versions found.")
+            return providers
 
         for namespace in os.listdir(registry_path):
             namespace_path = os.path.join(registry_path, namespace)
@@ -45,7 +49,7 @@ class TfInstalledVersionsChecker:
         return providers
 
     @staticmethod
-    def get_versions_from_index(provider_path: str) -> List[InstalledVersion]:
+    def get_versions_from_index(provider_path: str) -> List[VersionWithPlatform]:
         index_file_path = os.path.join(provider_path, "index.json")
         versions = []
         installed_versions = []
@@ -64,7 +68,7 @@ class TfInstalledVersionsChecker:
                     version_data = json.load(f)
                     for platform, platform_data in version_data.get("archives", {}).items():
                         logger.info(f"Version_data: {version} {platform}")
-                        installed_versions.append(InstalledVersion(version=version, platform=platform))
+                        installed_versions.append(VersionWithPlatform(version=version, platform=platform))
                         logger.debug(f"Added version: {version} for platform: {platform}")
             else:
                 logger.warning(f"Version file not found: {version_file_path}")

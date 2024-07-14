@@ -1,17 +1,14 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import requests
 
 from tamaku.utils.Logger import Logger
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.tf.TfTaskCreator import TfTaskCreator
 from tamaku.tf.TfRunProviderDownload import TfRunProviderDownload
 from tamaku.tf.TfGetProviders import TfGetProviders
-from tamaku.tf.TfProviderVersionFetcher import TfProviderVersionFetcher
-from tamaku.DataClasses import Config, Provider
+from tamaku.DataClasses import Config, Provider, VersionWithPlatform
 
 logger = Logger()
-
 
 class TestTfGetProviders(unittest.TestCase):
 
@@ -31,13 +28,21 @@ class TestTfGetProviders(unittest.TestCase):
                     namespace="hashicorp",
                     name="aws",
                     minimal_version="5.53",
-                    versions=["5.21.0", "5.35.0"]
+                    versions=[
+                        "5.21.0",
+                        "5.21.0",
+                        "5.35.0",
+                        "5.35.0",
+                    ]
                 ),
                 Provider(
                     namespace="hashicorp",
                     name="helm",
                     minimal_version="2.13",
-                    versions=["2.11.0"]
+                    versions=[
+                        "2.11.0",
+                        "2.11.0",
+                    ]
                 )
             ]
         )
@@ -58,12 +63,20 @@ class TestTfGetProviders(unittest.TestCase):
                 {
                     "namespace": "hashicorp",
                     "name": "aws",
-                    "versions": ["5.21.0", "5.35.0"]
+                    "versions": [
+                        {"version": "5.21.0", "platform": "linux_amd64"},
+                        {"version": "5.21.0", "platform": "darwin_arm64"},
+                        {"version": "5.35.0", "platform": "linux_amd64"},
+                        {"version": "5.35.0", "platform": "darwin_arm64"}
+                    ]
                 },
                 {
                     "namespace": "hashicorp",
                     "name": "helm",
-                    "versions": ["2.11.0"]
+                    "versions": [
+                        {"version": "2.11.0", "platform": "linux_amd64"},
+                        {"version": "2.11.0", "platform": "darwin_arm64"}
+                    ]
                 }
             ]
         }

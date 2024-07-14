@@ -3,7 +3,7 @@ from unittest.mock import patch, mock_open
 import json
 
 from tamaku.tf.TfInstalledVersionsChecker import TfInstalledVersionsChecker
-from tamaku.DataClasses import InstalledProvider, InstalledVersion, Config, Provider
+from tamaku.DataClasses import InstalledProvider, VersionWithPlatform, Config, Provider
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 
 
@@ -113,18 +113,18 @@ class TestTfInstalledVersionsCheckerMultiple(unittest.TestCase):
                 namespace="hashicorp",
                 name="helm",
                 versions=[
-                    InstalledVersion(version="2.11.0", platform="linux_amd64"),
-                    InstalledVersion(version="2.11.0", platform="darwin_arm64")
+                    VersionWithPlatform(version="2.11.0", platform="linux_amd64"),
+                    VersionWithPlatform(version="2.11.0", platform="darwin_arm64")
                 ]
             ),
             InstalledProvider(
                 namespace="hashicorp",
                 name="aws",
                 versions=[
-                    InstalledVersion(version="5.21.0", platform="linux_amd64"),
-                    InstalledVersion(version="5.21.0", platform="darwin_arm64"),
-                    InstalledVersion(version="5.35.0", platform="linux_amd64"),
-                    InstalledVersion(version="5.35.0", platform="darwin_arm64")
+                    VersionWithPlatform(version="5.21.0", platform="linux_amd64"),
+                    VersionWithPlatform(version="5.21.0", platform="darwin_arm64"),
+                    VersionWithPlatform(version="5.35.0", platform="linux_amd64"),
+                    VersionWithPlatform(version="5.35.0", platform="darwin_arm64")
                 ]
             )
         ]

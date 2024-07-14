@@ -7,11 +7,11 @@ logger = Logger()
 
 def main():
     config_path = "configs/provider_config.json"
-    # TfGetProviders(config_path)
-    # logger.info("Terraform providers downloaded successfully")
+    TfGetProviders(config_path)
+    logger.info("Terraform providers downloaded successfully")
 
-    installed_providers = TfInstalledVersionsChecker(config_path)
-    logger.info(f"Installed providers: {installed_providers.providers}")
+    # installed_providers = TfInstalledVersionsChecker(config_path)
+    # logger.info(f"Installed providers: {installed_providers.providers}")
 
 
 if __name__ == "__main__":

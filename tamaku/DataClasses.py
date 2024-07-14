@@ -3,6 +3,25 @@ from typing import List, Optional, Dict
 
 
 @dataclass
+class VersionWithPlatform:
+    version: str
+    platform: str
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'VersionWithPlatform':
+        return cls(
+            version=data.get("version"),
+            platform=data.get("platform")
+        )
+
+    def to_dict(self):
+        return {
+            "version": self.version,
+            "platform": self.platform
+        }
+
+
+@dataclass
 class Provider:
     namespace: str
     name: str
@@ -17,17 +36,28 @@ class Provider:
             versions=data.get("versions", [])
         )
 
+
 @dataclass
-class InstalledVersion:
-    version: str
-    platform: str
+class TaskProvider:
+    namespace: str
+    name: str
+    minimal_version: Optional[str] = None
+    versions: List[VersionWithPlatform] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'TaskProvider':
+        return cls(
+            namespace=data.get("namespace"),
+            name=data.get("name"),
+            versions=data.get("versions", [])
+        )
 
 
 @dataclass
 class InstalledProvider:
     namespace: str
     name: str
-    versions: List[InstalledVersion] = field(default_factory=list)
+    versions: List[VersionWithPlatform] = field(default_factory=list)
 
 
 @dataclass
