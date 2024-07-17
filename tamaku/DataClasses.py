@@ -4,8 +4,9 @@ from typing import List, Optional, Dict
 
 @dataclass
 class VersionWithPlatform:
-    version: str
-    platform: str
+    def __init__(self, version: str, platform: str):
+        self.version = version
+        self.platform = platform
 
     @classmethod
     def from_dict(cls, data: Dict) -> 'VersionWithPlatform':
@@ -19,6 +20,17 @@ class VersionWithPlatform:
             "version": self.version,
             "platform": self.platform
         }
+
+    def __eq__(self, other):
+        if isinstance(other, VersionWithPlatform):
+            return self.version == other.version and self.platform == other.platform
+        return False
+
+    def __hash__(self):
+        return hash((self.version, self.platform))
+
+    def __repr__(self):
+        return f"VersionWithPlatform(version={self.version}, platform={self.platform})"
 
 
 @dataclass
@@ -46,10 +58,11 @@ class TaskProvider:
 
     @classmethod
     def from_dict(cls, data: Dict) -> 'TaskProvider':
+        versions = [VersionWithPlatform.from_dict(vp) for vp in data.get("versions", [])]
         return cls(
             namespace=data.get("namespace"),
             name=data.get("name"),
-            versions=data.get("versions", [])
+            versions=versions
         )
 
 

@@ -1,4 +1,4 @@
-from tamaku.DataClasses import Provider
+from tamaku.DataClasses import TaskProvider, VersionWithPlatform
 from tamaku.utils.Logger import Logger
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.tf.TfTaskCreator import TfTaskCreator
@@ -22,12 +22,12 @@ class TfGetProviders:
 
         mirror_path = f"{config.mirror_path}/providers"
 
-        for platform in config.platforms:
-            for provider_data in task_creator.tasks["providers"]:
-                provider = Provider.from_dict(provider_data)
-                logger.info(f"Processing provider {provider.namespace}/{provider.name} with versions {provider.versions}")
-                for version in provider.versions:
-                    tf_run_provider_download = TfRunProviderDownload()
-                    tf_run_provider_download.run_download(namespace=provider.namespace,
-                                                          name=provider.name, version=version,
-                                                          platform=platform, path=mirror_path)
+        for provider_data in task_creator.tasks["providers"]:
+            task_provider = TaskProvider.from_dict(provider_data)
+            logger.info(f"Processing provider {task_provider.namespace}/{task_provider.name} with versions {task_provider.versions}")
+            for version_with_platform in task_provider.versions:
+                tf_run_provider_download = TfRunProviderDownload()
+                logger.debug(f"Downloading {task_provider.namespace}/{task_provider.name} version {version_with_platform.version} for {version_with_platform.platform}")
+                tf_run_provider_download.run_download(namespace=task_provider.namespace,
+                                                      name=task_provider.name, version=version_with_platform.version,
+                                                      platform=version_with_platform.platform, path=mirror_path)

@@ -46,6 +46,7 @@ class TfInstalledVersionsChecker:
                 )
                 providers.append(provider)
 
+        logger.debug(f"Installed providers: {providers}")
         return providers
 
     @staticmethod
@@ -73,4 +74,5 @@ class TfInstalledVersionsChecker:
             else:
                 logger.warning(f"Version file not found: {version_file_path}")
 
+        logger.debug(f"Installed versions: {installed_versions}")
         return installed_versions
