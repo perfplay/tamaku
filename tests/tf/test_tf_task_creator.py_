@@ -1,0 +1,162 @@
+# import unittest
+# from unittest.mock import patch, MagicMock
+# from pyfakefs.fake_filesystem_unittest import TestCase
+# from tamaku.tf.TfTaskCreator import TfTaskCreator
+# from tamaku.DataClasses import Provider, VersionWithPlatform, Config
+#
+# class TestTfTaskCreator(TestCase):
+#
+#     def setUp(self):
+#         self.setUpPyfakefs()
+#
+#     @patch('tamaku.tf.TfInstalledVersionsChecker.TfInstalledVersionsChecker')
+#     @patch('tamaku.tf.TfProviderConfigLoader.TfProviderConfigLoader.load_config')
+#     @patch('tamaku.tf.TfProviderVersionFetcher.TfProviderVersionFetcher.fetch_versions')
+#     @patch('tamaku.utils.VersionFilter.VersionFilter.filter_versions')
+#     def test_create_tasks(self, mock_filter_versions, mock_fetch_versions, mock_load_config, mock_installed_versions_checker):
+#         self.maxDiff = None
+#
+#         # Create a fake provider config file
+#         config_content = """
+#         {
+#             "registry": "registry.terraform.io",
+#             "platforms": ["linux_amd64", "darwin_arm64"],
+#             "mirror_path": "mirror",
+#             "providers": [
+#                 {
+#                     "namespace": "hashicorp",
+#                     "name": "aws",
+#                     "minimal_version": "5.53",
+#                     "versions": [
+#                         "5.21.0",
+#                         "5.35.0"
+#                     ]
+#                 },
+#                 {
+#                     "namespace": "hashicorp",
+#                     "name": "helm",
+#                     "minimal_version": "2.13",
+#                     "versions": [
+#                         "2.11.0"
+#                     ]
+#                 }
+#             ]
+#         }
+#         """
+#         config_path = '/configs/provider_config.json'
+#         self.fs.create_file(config_path, contents=config_content)
+#
+#         # Mocking load_config to return a predefined config
+#         mock_load_config.return_value = Config(
+#             registry="registry.terraform.io",
+#             platforms=["linux_amd64", "darwin_arm64"],
+#             mirror_path="mirror",
+#             providers=[
+#                 Provider(
+#                     namespace="hashicorp",
+#                     name="aws",
+#                     minimal_version="5.53",
+#                     versions=[
+#                         "5.21.0",
+#                         "5.35.0",
+#                     ]
+#                 ),
+#                 Provider(
+#                     namespace="hashicorp",
+#                     name="helm",
+#                     minimal_version="2.13",
+#                     versions=[
+#                         "2.11.0",
+#                     ]
+#                 )
+#             ]
+#         )
+#
+#         # Mocking fetch_versions to return specific versions
+#         def fetch_versions_side_effect(namespace, name):
+#             if name == "aws":
+#                 return ["5.21.0", "5.35.0", "5.53.0"]
+#             elif name == "helm":
+#                 return ["2.11.0", "2.13.0"]
+#             return []
+#
+#         mock_fetch_versions.side_effect = fetch_versions_side_effect
+#
+#         # Mocking filter_versions to return specific filtered versions
+#         def filter_versions_side_effect(versions, include=None, min_version=None):
+#             if "5.53" in versions:
+#                 return ["5.21.0", "5.35.0", "5.53.0"]
+#             elif "2.13" in versions:
+#                 return ["2.11.0", "2.13.0"]
+#             return []
+#
+#         mock_filter_versions.side_effect = filter_versions_side_effect
+#
+#         # Mocking installed_versions_checker to return specific installed providers
+#         mock_installed_versions_checker.return_value.providers = [
+#             Provider(
+#                 namespace="hashicorp",
+#                 name="aws",
+#                 minimal_version="5.53",
+#                 versions=[
+#                     VersionWithPlatform(version="5.21.0", platform="darwin_arm64"),
+#                     VersionWithPlatform(version="5.35.0", platform="linux_amd64"),
+#                 ]
+#             ),
+#             Provider(
+#                 namespace="hashicorp",
+#                 name="helm",
+#                 minimal_version="2.13",
+#                 versions=[
+#                     VersionWithPlatform(version="2.11.0", platform="linux_amd64"),
+#                 ]
+#             )
+#         ]
+#
+#         task_creator = TfTaskCreator(config_path=config_path, registry_url="registry.terraform.io")
+#
+#         tasks = task_creator.create_tasks()
+#
+#         # Sorting the actual tasks for comparison
+#         for provider in tasks['providers']:
+#             provider['versions'].sort(key=lambda x: (x['version'], x['platform']))
+#
+#         expected_tasks = {
+#             "providers": [
+#                 {
+#                     "namespace": "hashicorp",
+#                     "name": "aws",
+#                     "versions": [
+#                         {"version": "5.21.0", "platform": "darwin_arm64"},
+#                         {"version": "5.21.0", "platform": "linux_amd64"},
+#                         {"version": "5.35.0", "platform": "darwin_arm64"},
+#                         {"version": "5.35.0", "platform": "linux_amd64"},
+#                         {"version": "5.53.0", "platform": "darwin_arm64"},
+#                         {"version": "5.53.0", "platform": "linux_amd64"},
+#                     ]
+#                 },
+#                 {
+#                     "namespace": "hashicorp",
+#                     "name": "helm",
+#                     "versions": [
+#                         {"version": "2.11.0", "platform": "darwin_arm64"},
+#                         {"version": "2.11.0", "platform": "linux_amd64"},
+#                         {"version": "2.13.0", "platform": "darwin_arm64"},
+#                         {"version": "2.13.0", "platform": "linux_amd64"},
+#                     ]
+#                 }
+#             ]
+#         }
+#
+#         # Sorting the expected tasks for comparison
+#         for provider in expected_tasks['providers']:
+#             provider['versions'].sort(key=lambda x: (x['version'], x['platform']))
+#
+#         print("Expected tasks:", expected_tasks)
+#         print("Actual tasks:", tasks)
+#
+#         self.assertEqual(tasks, expected_tasks)
+#
+#
+# if __name__ == '__main__':
+#     unittest.main()

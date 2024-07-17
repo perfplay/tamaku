@@ -11,7 +11,7 @@ from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 class TestTfInstalledVersionsChecker(unittest.TestCase):
 
     def setUp(self):
-        self.maxDiff = None  # Установить для отображения полного различия
+        self.maxDiff = None
 
     @patch("os.listdir")
     @patch("os.path.isdir")
