@@ -15,7 +15,7 @@ class TfInstalledVersionsChecker:
     def check_installed_versions(self, config_path):
         loader = TfProviderConfigLoader()
         config = loader.load_config(config_path)
-        mirror_path = f"{config.mirror_path}/providers"
+        mirror_path = f"{config.mirror_path}/v1/providers"
 
         providers = []
         registry_path = os.path.join(mirror_path, config.registry)

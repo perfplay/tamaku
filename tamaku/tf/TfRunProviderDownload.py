@@ -32,3 +32,5 @@ class TfRunProviderDownload:
                 self.failed_updates.append(f"{namespace}/{name} version {version} for {platform}")
         finally:
             os.chdir(original_cwd)
+            TfTemplateGenerator.clean_terraform_config(path)
+

@@ -1,4 +1,5 @@
 from tamaku.DataClasses import TaskProvider, VersionWithPlatform
+from tamaku.tf.TfTemplateGenerator import TfTemplateGenerator
 from tamaku.utils.Logger import Logger
 from tamaku.tf.TfProviderConfigLoader import TfProviderConfigLoader
 from tamaku.tf.TfTaskCreator import TfTaskCreator
@@ -20,7 +21,7 @@ class TfGetProviders:
         task_creator.create_tasks_json("provider_tasks.json")
         logger.info("Terraform tasks created successfully")
 
-        mirror_path = f"{config.mirror_path}/providers"
+        mirror_path = f"{config.mirror_path}/v1/providers"
 
         for provider_data in task_creator.tasks["providers"]:
             task_provider = TaskProvider.from_dict(provider_data)
@@ -31,3 +32,5 @@ class TfGetProviders:
                 tf_run_provider_download.run_download(namespace=task_provider.namespace,
                                                       name=task_provider.name, version=version_with_platform.version,
                                                       platform=version_with_platform.platform, path=mirror_path)
+        TfTemplateGenerator.generate_mirror_well_known_file(config.mirror_path)
+

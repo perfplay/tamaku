@@ -97,7 +97,7 @@ class TestTfInstalledVersionsChecker(unittest.TestCase):
 
         self.assertEqual(checker.providers, expected_providers)
         mock_open_file.assert_any_call(
-            os.path.join("mirror/providers/registry.terraform.io/hashicorp/aws", "index.json"), 'r')
+            os.path.join("mirror/v1/providers/registry.terraform.io/hashicorp/aws", "index.json"), 'r')
 
 
 if __name__ == '__main__':

@@ -47,12 +47,12 @@ class TestTfInstalledVersionsCheckerMultiple(unittest.TestCase):
 
         # Mocking the content of the version.json files
         version_data = {
-            "mirror/providers/registry.terraform.io/hashicorp/helm/index.json": json.dumps({
+            "mirror/v1/providers/registry.terraform.io/hashicorp/helm/index.json": json.dumps({
                 "versions": {
                     "2.11.0": {}
                 }
             }),
-            "mirror/providers/registry.terraform.io/hashicorp/helm/2.11.0.json": json.dumps({
+            "mirror/v1/providers/registry.terraform.io/hashicorp/helm/2.11.0.json": json.dumps({
                 "archives": {
                     "linux_amd64": {
                         "hashes": ["h1:N8sP6VZjHbtgmaCU6BKPox51UIypWXQRal7JMecEXQw="],
@@ -64,13 +64,13 @@ class TestTfInstalledVersionsCheckerMultiple(unittest.TestCase):
                     }
                 }
             }),
-            "mirror/providers/registry.terraform.io/hashicorp/aws/index.json": json.dumps({
+            "mirror/v1/providers/registry.terraform.io/hashicorp/aws/index.json": json.dumps({
                 "versions": {
                     "5.21.0": {},
                     "5.35.0": {}
                 }
             }),
-            "mirror/providers/registry.terraform.io/hashicorp/aws/5.21.0.json": json.dumps({
+            "mirror/v1/providers/registry.terraform.io/hashicorp/aws/5.21.0.json": json.dumps({
                 "archives": {
                     "linux_amd64": {
                         "hashes": ["h1:N8sP6VZjHbtgmaCU6BKPox51UIypWXQRal7JMecEXQw="],
@@ -82,7 +82,7 @@ class TestTfInstalledVersionsCheckerMultiple(unittest.TestCase):
                     }
                 }
             }),
-            "mirror/providers/registry.terraform.io/hashicorp/aws/5.35.0.json": json.dumps({
+            "mirror/v1/providers/registry.terraform.io/hashicorp/aws/5.35.0.json": json.dumps({
                 "archives": {
                     "linux_amd64": {
                         "hashes": ["h1:N8sP6VZjHbtgmaCU6BKPox51UIypWXQRal7JMecEXQw="],

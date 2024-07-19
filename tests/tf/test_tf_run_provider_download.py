@@ -21,7 +21,7 @@ class TestTfRunProviderDownload(unittest.TestCase):
             name = "aws"
             version = "5.55.0"
             platform = "darwin_arm64"
-            path = os.path.join(temp_dir, "mirror", "providers")
+            path = os.path.join(temp_dir, "mirror", "v1", "providers")
 
             downloader = TfRunProviderDownload()
             downloader.run_download(namespace, name, version, platform, path)
