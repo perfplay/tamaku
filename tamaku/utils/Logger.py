@@ -5,7 +5,7 @@ import sys
 class Logger:
     def __init__(
             self,
-            log_level='DEBUG',
+            log_level='INFO',
             log_format='%(asctime)s - %(levelname)s - %(message)s',
             date_format='%Y-%m-%d %H:%M:%S'
     ):

@@ -68,7 +68,7 @@ class TfInstalledVersionsChecker:
                 with open(version_file_path, 'r') as f:
                     version_data = json.load(f)
                     for platform, platform_data in version_data.get("archives", {}).items():
-                        logger.info(f"Version_data: {version} {platform}")
+                        logger.debug(f"Version_data: {provider_path} - {version} {platform}")
                         installed_versions.append(VersionWithPlatform(version=version, platform=platform))
                         logger.debug(f"Added version: {version} for platform: {platform}")
             else:
